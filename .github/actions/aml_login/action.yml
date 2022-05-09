@@ -43,5 +43,6 @@ runs:
     - name: Workaround for permission error
       shell: bash
       run: |
-        git config --global \
-        --add safe.directory /__w/${{ github.repository }}/${{ github.repository }}
+        REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
+        echo $REPOSITORY_NAME
+        git config --global --add safe.directory /__w/$REPOSITORY_NAME/$REPOSITORY_NAME
