@@ -39,3 +39,9 @@ runs:
             '{subscription_id: $sub, resource_group: $rg, workspace_name: $ws}')
         # Write the json string to the current repo
         echo -e $JSON_STRING >> $PWD/config.json
+
+    - name: Workaround for permission error
+      shell: bash
+      run: |
+        git config --global \
+        --add safe.directory /__w/${{ github.repository }}/${{ github.repository }}
