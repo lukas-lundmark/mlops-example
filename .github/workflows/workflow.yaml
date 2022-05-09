@@ -70,7 +70,17 @@ jobs:
       - name: Inspect configuration
         run: cat $PWD/config.json
 
+      - name: filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'ml_pipelines/**'
+              - 'src/**'
+
       - name: Build pipeline
+        if: steps.filter.outputs.workflows == 'true'
         run: python -m ml_pipelines.build_train_pipeline
 
   run-train-pipeline:
@@ -96,5 +106,15 @@ jobs:
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
           WORKSPACE: ${{ env.WORKSPACE }}
 
+      - name: filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'ml_pipelines/**'
+              - 'src/**'
+
       - name: Run pipeline
+        if: steps.filter.outputs.workflows == 'true'
         run: python -m ml_pipelines.run_train_pipeline
