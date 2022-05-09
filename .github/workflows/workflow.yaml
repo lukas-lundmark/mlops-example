@@ -1,0 +1,100 @@
+name: Automatic Training
+on:
+  push:
+    branches: [main]
+
+env:
+  RESOURCE_GROUP: mlops-rg
+  WORKSPACE: azure-ml-toyota-demo
+
+jobs:
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'environment_setup/**'
+
+      - name: Build and Push
+        if: steps.filter.outputs.workflows == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: ./environment_setup/
+          tags: |
+            ghcr.io/ghcr.io/lukas-lundmark/mlops-ci-image:latest
+            ghcr.io/ghcr.io/lukas-lundmark/mlops-ci-image:${{ github.sha }}
+
+          push: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  build-train-pipeline:
+    needs: build-and-push-docker-image
+    name: Build Train Pipeline
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: Inspect configuration
+        run: cat $PWD/config.json
+
+      - name: Build pipeline
+        run: python -m ml_pipelines.build_train_pipeline
+
+  run-train-pipeline:
+    needs: build-train-pipeline
+    name: Run Train Pipeline
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: Run pipeline
+        run: python -m ml_pipelines.run_train_pipeline

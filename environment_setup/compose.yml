@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  mlops-environment:
+    platform: linux/amd64
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: mlops-project-environment
+
+    ports:
+      - 8891:8888
+
+    volumes:
+      - $PWD:/app
+
+    restart: unless-stopped
+
+    command: python -m jupyter notebook --ip=0.0.0.0 --allow-root
