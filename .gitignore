@@ -9,3 +9,4 @@ build
 htmlcov
 
 config.json
+**/.ipynb_checkpoints/**
