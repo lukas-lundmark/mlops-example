@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-import os
+import argparse
+from pathlib import Path
 from azureml.core.workspace import Workspace
-from dotenv import load_dotenv
-
 from azureml.pipeline.steps import PythonScriptStep
-from azureml.pipeline.core import Pipeline, PipelineEndpoint
+from azureml.pipeline.core import Pipeline, PipelineParameter
 from azureml.core.runconfig import RunConfiguration
-from azureml.core import Dataset
-from azureml.data.dataset_consumption_config import DatasetConsumptionConfig
 
 from ml_pipelines.utils import (
     EnvironmentVariables,
@@ -15,32 +12,42 @@ from ml_pipelines.utils import (
     get_environment,
 )
 
-dataset_name = "diamonds"
+parser = argparse.ArgumentParser()
+parser.add_argument("--pipeline-id-output", default=None)
+arguments = parser.parse_args()
+pipeline_id_output = arguments.pipeline_id_output
 
 ws = Workspace.from_config()
 env_vars = EnvironmentVariables()
 
-train_dataset = Dataset.get_by_name(ws, f"{dataset_name}-train")
-test_dataset = Dataset.get_by_name(ws, f"{dataset_name}-test")
-train_ds_consumption = DatasetConsumptionConfig("train_ds", train_dataset)
-test_ds_consumption = DatasetConsumptionConfig("test_ds", test_dataset)
-inputs = [train_ds_consumption, test_ds_consumption]
-
 cpu_cluster = get_aml_compute(ws, env_vars)
 target_env = get_environment(ws, env_vars)
-
 
 run_config = RunConfiguration()
 run_config.environment = target_env
 
+training_dataset_name = PipelineParameter(
+    name="train_ds_name", default_value=env_vars.train_ds
+)
+test_dataset_name = PipelineParameter(
+    name="test_ds_name", default_value=env_vars.train_ds
+)
+model_name = PipelineParameter(name="model_name", default_value=env_vars.model_name)
 train_step = PythonScriptStep(
     name="test_train_model",
     script_name="train_pipeline.py",
     source_directory="src",
     compute_target=cpu_cluster,
     runconfig=run_config,
-    inputs=inputs,
     allow_reuse=False,
+    arguments=[
+        "--ds-train",
+        training_dataset_name,
+        "--ds-test",
+        test_dataset_name,
+        "--model-name",
+        model_name
+    ],
 )
 
 training_pipeline_name = env_vars.train_pipeline_name
@@ -50,16 +57,10 @@ pipeline = Pipeline(
     workspace=ws, steps=[train_step], description="Model Training and Deployment"
 )
 pipeline.validate()
-
 published_pipeline = pipeline.publish(training_pipeline_name)
+pipeline_id = published_pipeline.id
 
-try:
-    pipeline_endpoint = PipelineEndpoint.get(ws, name=pipeline_endpoint_name)
-    pipeline_endpoint.add_default(published_pipeline)
-except Exception:
-    pipeline_endpoint = PipelineEndpoint.publish(
-        workspace=ws,
-        name=pipeline_endpoint_name,
-        pipeline=published_pipeline,
-        description="Pipeline Endpoint for Departure Prediction",
-    )
+if pipeline_id_output is not None:
+    Path(pipeline_id_output).write_text(pipeline_id)
+else:
+    print(pipeline_id)

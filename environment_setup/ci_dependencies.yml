@@ -29,6 +29,7 @@ dependencies:
 
   - pip:
       # dependencies with versions aligned with conda_dependencies.yml.
+      - azureml-defaults==1.40.*
       - azureml-sdk==1.40.*
       - azureml-dataset-runtime[fuse,pandas]==1.40.*
       # - azureml-core==1.40.*
