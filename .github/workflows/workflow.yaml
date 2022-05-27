@@ -48,7 +48,6 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   run-train-pipeline:
-    needs: build-train-pipeline
     name: Run Train Pipeline
     runs-on: ubuntu-latest
 
