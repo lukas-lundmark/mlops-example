@@ -1,0 +1,33 @@
+name: Deploy Model
+
+# Run this workflow if the train pipeline succeeded
+on:
+  workflow_dispatch
+  repository-dispatch:
+    types: [model-trained-event]
+
+jobs:
+  deploy-model:
+    name: run_train_endpoint
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: "Deploy Model"
+        id: "deploy-model"
+        run: python -m ml_pipelines.deploy.build_remote_webservice

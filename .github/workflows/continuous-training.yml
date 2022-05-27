@@ -49,3 +49,10 @@ jobs:
           else
               echo "Pipeline succeeded"
           fi
+
+      - name: Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        if: ${{ steps.start-pipeline.outputs.status }} == 'Canceled'
+        with:
+          token: ${{ secrets.CR_PAT }}
+          event-type: model-trained-event
