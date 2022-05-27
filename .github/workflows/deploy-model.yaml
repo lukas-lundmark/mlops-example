@@ -52,7 +52,7 @@ jobs:
   deploy-model:
     name: run_train_endpoint
     runs-on: ubuntu-latest
-    depends-on: test-deploy-model
+    needs: test-deploy-model
 
     container:
       image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
