@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from pathlib import Path
 from azureml.pipeline.core import PublishedPipeline, PipelineEndpoint
 from azureml.core import Experiment, Workspace
 from ml_pipelines.utils import EnvironmentVariables
@@ -19,6 +20,8 @@ parser.add_argument(
     help="Run the given pipeline regardless if new data is available or not",
 )
 
+parser.add_argument("--status-output", default=None, help="Write the final Run Status to this file.")
+
 arguments = parser.parse_args()
 
 if arguments.pipeline_id is None:
@@ -33,4 +36,8 @@ if arguments.ignore_data_check:
     pipeline_parameters.update({"ignore_data_check": "True"})
 
 run = experiment.submit(published_pipeline, pipeline_parameters=pipeline_parameters)
-run.wait_for_completion(show_output=True)
+
+# Write the status of the run to an output-file
+status = run.wait_for_completion(show_output=True)
+if arguments.status_output is not None:
+    Path(arguments.status_output).write_text(status)

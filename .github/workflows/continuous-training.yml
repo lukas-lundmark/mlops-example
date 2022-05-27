@@ -31,4 +31,21 @@ jobs:
           WORKSPACE: ${{ env.WORKSPACE }}
 
       - name: Start Pipeline
-        run: python -m ml_pipelines.complex_pipeline.run_pipeline
+        id: start-pipeline
+        run: |
+          OUTPUTFILE=status-output.txt
+          python -m ml_pipelines.complex_pipeline.run_pipeline  \
+              --status-output $OUTPUTFILE
+          echo ::set-output name=status::$(cat $OUTPUTFILE)
+
+      - name: Check status of Pipeline Run
+        id: check-pipeline
+        run: |
+          status=${{ steps.start-pipeline.outputs.status }}
+          if [ "$status" = "Canceled" ]; then
+              echo "Pipeline was canceled"
+          elif [ "$status" = "Failed" ]; then
+              echo "Pipeline failed"
+          else
+              echo "Pipeline succeeded"
+          fi
