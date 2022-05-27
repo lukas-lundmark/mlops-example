@@ -29,4 +29,4 @@ jobs:
           WORKSPACE: ${{ env.WORKSPACE }}
 
       - name: Start Pipeline
-        runs: python -m ml_pipelines.complex_pipeline.run_pipeline
+        run: python -m ml_pipelines.complex_pipeline.run_pipeline
