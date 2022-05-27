@@ -4,6 +4,9 @@ on: workflow_dispatch
 env:
   RESOURCE_GROUP: mlops-rg
   WORKSPACE: azure-ml-toyota-demo
+  TRAIN_PIPELINE_NAME: train-pipeline
+  PIPELINE_ENDPOINT_NAME: train-pipeline-endpoint
+  EXPERIMENT_NAME: CT-Workflow-Experiment
 
 jobs:
   run_train_endpoint:
