@@ -2,8 +2,8 @@ name: Deploy Model
 
 # Run this workflow if the train pipeline succeeded
 on:
-  - workflow_dispatch
-  - repository-dispatch:
+  workflow_dispatch:
+  repository-dispatch:
     types: [model-trained-event]
 
 jobs:
