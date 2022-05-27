@@ -1,0 +1,32 @@
+name: Continuous-Training
+on: workflow_dispatch
+
+env:
+  RESOURCE_GROUP: mlops-rg
+  WORKSPACE: azure-ml-toyota-demo
+
+jobs:
+  run_train_endpoint:
+    name: run_train_endpoint
+    id: run_train_endpoint
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: Start Pipeline
+        runs: python -m ml_pipelines.complex_pipeline.run_pipeline
