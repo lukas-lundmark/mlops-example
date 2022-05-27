@@ -119,6 +119,7 @@ jobs:
               - 'src/**'
 
       - name: Build pipeline
+        id: build-pipeline
         if: |
           ${{ steps.filter.outputs.workflows }} == 'true'
         run: |
@@ -133,7 +134,7 @@ jobs:
         env:
           EXPERIMENT_NAME: CI-EXPERIMENT-NAME
         run: |
-          PIPELINEID=${{ steps.start-pipeline.outputs.status }}
+          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           STATUS_OUTPUT="output.txt"
 
           python -m ml_pipelines.complex_pipeline.run_pipeline \
@@ -146,7 +147,7 @@ jobs:
           ${{ steps.filter.outputs.workflows }} == 'true' &&
           ${{ steps.run-pipeline.outputs.status }} == 'Succeeded'
         run: |
-          PIPELINEID=${{ steps.run-pipeline.outputs.status }}
+          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID
 
       - name: Disable Failed Pipeline
@@ -154,5 +155,5 @@ jobs:
           ${{ steps.filter.outputs.workflows }} == 'true' &&
           ${{ steps.run-pipeline.outputs.status }} != 'Succeeded'
         run: |
-          PIPELINEID=${{ steps.run-pipeline.outputs.status }}
+          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
