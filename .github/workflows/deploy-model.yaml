@@ -37,16 +37,13 @@ jobs:
           WORKSPACE: ${{ env.WORKSPACE }}
 
       - name: "Deploy TestModel"
-        id: "deploy-test-model"
         run: python -m ml_pipelines.deploy.build_remote_webservice
 
       - name: "Deploy TestModel"
-        id: "deploy-test-model"
         continue-on-error: true
         run: python -m ml_pipelines.smoke_test
 
       - name: "Deploy TestModel"
-        id: "deploy-test-model"
         run: python -m ml_pipelines.deploy.delete_service
 
   deploy-model:
