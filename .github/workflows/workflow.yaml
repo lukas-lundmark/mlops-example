@@ -117,3 +117,5 @@ jobs:
         run: |
           PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
+          echo "The new pipeline didn't improve results so we fail"
+          exit 1

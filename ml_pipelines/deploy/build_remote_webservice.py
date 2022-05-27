@@ -4,6 +4,7 @@ from azureml.core.model import InferenceConfig
 from argparse import ArgumentParser
 from azureml.core.webservice import AksWebservice, LocalWebservice
 from ml_pipelines.utils import EnvironmentVariables, get_environment, get_aks_cluster
+from pathlib import Path
 
 workspace = Workspace.from_config()
 env_vars = EnvironmentVariables()
@@ -11,6 +12,7 @@ env_vars = EnvironmentVariables()
 parser = ArgumentParser("Build Scoring Image")
 parser.add_argument("--model-version", default=None)
 parser.add_argument("--local", action='store_true')
+parser.add_argument("--url-output", default=None)
 args = parser.parse_args()
 
 environment = get_environment(workspace, env_vars)
@@ -41,3 +43,6 @@ service = Model.deploy(
     **kwargs
 )
 service.wait_for_deployment(show_output=True)
+if args.url_output is not None:
+    Path(args.url_output).write_text(service.scoring_uri)
+    f"SCORING_URL={service.scoring_uri}\n"

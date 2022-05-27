@@ -58,7 +58,7 @@ class EnvironmentVariables:
     train_ds: Optional[str] = os.environ.get(
         "TRAIN_DS", "diamonds-train"
     )
-    teste_ds: Optional[str] = os.environ.get(
+    test_ds: Optional[str] = os.environ.get(
         "TEST_DS", "diamonds-test"
     )
 
