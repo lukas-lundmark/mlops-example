@@ -8,7 +8,6 @@ env:
 jobs:
   run_train_endpoint:
     name: run_train_endpoint
-    id: run_train_endpoint
     runs-on: ubuntu-latest
 
     container:
