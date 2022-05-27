@@ -6,6 +6,10 @@ on:
     types: [model-trained-event]
   workflow_dispatch:
 
+env:
+  RESOURCE_GROUP: mlops-rg
+  WORKSPACE: azure-ml-toyota-demo
+
 jobs:
   deploy-model:
     name: run_train_endpoint
