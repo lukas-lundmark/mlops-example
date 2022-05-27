@@ -127,7 +127,8 @@ jobs:
 
       - name: Run New Pipeline
         id: run-pipeline
-        env: EXPERIMENT_NAME="CI-EXPERIMENT-NAME"
+        env:
+          EXPERIMENT_NAME: CI-EXPERIMENT-NAME
         if: steps.filter.outputs.workflows == 'true'
         run: |
           PIPELINEID=${{ steps.start-pipeline.outputs.status }}
