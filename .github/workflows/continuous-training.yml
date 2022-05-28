@@ -37,7 +37,8 @@ jobs:
         run: |
           OUTPUTFILE=status-output.txt
           python -m ml_pipelines.complex_pipeline.run_pipeline  \
-              --status-output $OUTPUTFILE
+              --status-output $OUTPUTFILE \
+              --ignore-data-check
           echo ::set-output name=status::$(cat $OUTPUTFILE)
 
       - name: Check status of Pipeline Run
