@@ -108,7 +108,7 @@ jobs:
       - name: Set Pipeline Endpoint
         if: |
           ${{ steps.filter.outputs.workflows }} == 'true' &&
-          ${{ steps.run-pipeline.outputs.status }} == 'Succeeded'
+          ${{ steps.run-pipeline.outputs.status }} == 'Finished'
         run: |
           PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID
@@ -116,7 +116,7 @@ jobs:
       - name: Disable Failed Pipeline
         if: |
           ${{ steps.filter.outputs.workflows }} == 'true' &&
-          ${{ steps.run-pipeline.outputs.status }} != 'Succeeded'
+          ${{ steps.run-pipeline.outputs.status }} != 'Finished'
         run: |
           PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
