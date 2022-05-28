@@ -12,6 +12,7 @@ parser.add_argument(
 )
 
 parser.add_argument("--step-input", type=str, help="input from previous steps")
+parser.add_argument("--build-id", type=str, help="The run id of the current GitHub workflow")
 arguments = parser.parse_args()
 model_path = arguments.step_input
 model_name = arguments.model_name
@@ -34,9 +35,14 @@ def get_information(run):
 
 run = Run.get_context()
 metrics, datasets = get_information(run)
+
+tags = metrics
+if arguments.build_id is not None:
+    tags = {**metrics, "buildId": arguments.build_id}
+
 run.parent.upload_file(model_name, str(Path(model_path, model_name)))
 run.parent.register_model(
     model_name=model_name,
-    tags=metrics,
+    tags=tags,
     datasets=datasets,
 )

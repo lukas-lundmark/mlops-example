@@ -90,7 +90,7 @@ train_step = PythonScriptStep(
         "--output",
         model_output,
     ],
-    inputs = [train_ds_consumption, test_ds_consumption],
+    inputs=[train_ds_consumption, test_ds_consumption],
     outputs=[model_output],
     compute_target=cpu_cluster,
     runconfig=run_config,
@@ -102,6 +102,7 @@ lower_better_pipeline_param = PipelineParameter(name="lower_better", default_val
 allow_eval_cancel_pipeline_param = PipelineParameter(
     name="allow_eval_cancel", default_value=True
 )
+build_id_param = PipelineParameter(name="build_id", default_value=None)
 
 evaluate_step = PythonScriptStep(
     name="Evaulate model performance",
@@ -126,7 +127,14 @@ register_step = PythonScriptStep(
     name="Register New Model",
     script_name="register.py",
     source_directory="src/complex_pipeline",
-    arguments=["--model-name", model_name_pipeline_param, "--step-input", model_output],
+    arguments=[
+        "--model-name",
+        model_name_pipeline_param,
+        "--step-input",
+        model_output,
+        "--build-id",
+        build_id_param,
+    ],
     compute_target=cpu_cluster,
     runconfig=run_config,
     inputs=[model_output],

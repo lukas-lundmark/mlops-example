@@ -36,14 +36,14 @@ jobs:
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
           WORKSPACE: ${{ env.WORKSPACE }}
 
-      - name: "Deploy TestModel"
+      - name: "Deploy Model to Webservice"
         run: python -m ml_pipelines.deploy.build_remote_webservice
 
-      - name: "Deploy TestModel"
+      - name: "Smoke Test Webservice"
         continue-on-error: true
-        run: python -m ml_pipelines.smoke_test
+        run: python -m ml_pipelines.deploy.smoke_test
 
-      - name: "Deploy TestModel"
+      - name: "Destroy Test Model"
         run: python -m ml_pipelines.deploy.delete_service
 
   deploy-model:
@@ -68,6 +68,6 @@ jobs:
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
           WORKSPACE: ${{ env.WORKSPACE }}
 
-      - name: "Deploy TestModel"
+      - name: "Deploy the production Web Service"
         id: "deploy-test-model"
         run: python -m ml_pipelines.deploy.build_remote_webservice

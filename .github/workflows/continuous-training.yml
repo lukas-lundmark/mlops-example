@@ -12,6 +12,8 @@ jobs:
   run_train_endpoint:
     name: run_train_endpoint
     runs-on: ubuntu-latest
+    env:
+      MODEL_NAME: just-a-test-model
 
     container:
       image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
@@ -42,6 +44,7 @@ jobs:
         id: check-pipeline
         run: |
           status=${{ steps.start-pipeline.outputs.status }}
+          echo $status
           if [ "$status" = "Canceled" ]; then
               echo "Pipeline was canceled"
           elif [ "$status" = "Failed" ]; then
@@ -49,6 +52,19 @@ jobs:
           else
               echo "Pipeline succeeded"
           fi
+
+      - name: Download Model Artifact from AML
+        if: ${{ steps.start-pipeline.outputs.status }} == 'Succeeded'
+        run : |
+
+          python -m ml_pipelines.misc.download_model --output model.json
+
+      - name: Upload model as artifact
+        if: ${{ steps.start-pipeline.outputs.status }} == 'Succeeded'
+        uses: actions/upload-artifact@v3
+            with:
+              name: model
+              path: ./model.json
 
       - name: Dispatch
         uses: peter-evans/repository-dispatch@v1

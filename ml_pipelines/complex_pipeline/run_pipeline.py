@@ -35,6 +35,9 @@ pipeline_parameters = {}
 if arguments.ignore_data_check:
     pipeline_parameters.update({"ignore_data_check": "True"})
 
+if env_vars.run_id is not None:
+    pipeline_parameters.update({"build_id": env_vars.run_id})
+
 run = experiment.submit(published_pipeline, pipeline_parameters=pipeline_parameters)
 
 # Write the status of the run to an output-file

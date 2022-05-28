@@ -65,6 +65,8 @@ class EnvironmentVariables:
     model_name: Optional[str] = os.environ.get("MODEL_NAME", "diamond-linear-regressor")
     inference_cluster_name: Optional[str] = os.environ.get("INFERENCE_CLUSTER_NAME", "aks-cluster")
 
+    run_id: Optional[str] = os.environ.get("GITHUB_RUN_ID", None)
+
 def get_aml_compute(ws: Workspace, env_vars: EnvironmentVariables) -> ComputeTarget:
     try:
         cpu_cluster = ComputeTarget(workspace=ws, name=env_vars.cpucluster)
