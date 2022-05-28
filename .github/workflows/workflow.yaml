@@ -99,7 +99,8 @@ jobs:
 
           python -m ml_pipelines.complex_pipeline.run_pipeline \
             --pipeline-id $PIPELINEID \
-            --status-output $STATUS_OUTPUT
+            --status-output $STATUS_OUTPUT \
+            --ignore-data-check
           echo ::set-output name=status::$(cat $STATUS_OUTPUT)
 
       - name: Set Pipeline Endpoint
