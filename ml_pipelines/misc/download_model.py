@@ -1,7 +1,6 @@
 from azureml.core import Model, Workspace
 from pathlib import Path
 from ml_pipelines.utils import EnvironmentVariables
-import json
 import argparse
 
 workspace = Workspace.from_config()
@@ -18,12 +17,13 @@ if arguments.run_id is not None:
 if run_id is None:
     raise ValueError("No value set for Run ID")
 
-models = Model.list(workspace, name=env_vars.model_name, tags=['buildId', run_id])
+print(run_id)
+models = Model.list(workspace, name=env_vars.model_name, tags=[['buildId', run_id]])
 n_models = len(models)
 
 if n_models == 0:
-    raise ValueError("No model failed for this run")
+    raise ValueError("No model registered for this run")
 elif n_models > 1:
     raise ValueError(f"Too many models with this run {n_models}")
 
-Path(arguments.output).write_text(json.dumps(models[0]))
+Path(arguments.output).write_text(models[0].id)

@@ -11,7 +11,8 @@ env_vars = EnvironmentVariables()
 
 parser = ArgumentParser("Build Scoring Image")
 parser.add_argument("--model-version", default=None)
-parser.add_argument("--local", action='store_true')
+parser.add_argument("--id", default=None)
+parser.add_argument("--local", action="store_true")
 parser.add_argument("--url-output", default=None)
 args = parser.parse_args()
 
@@ -22,13 +23,16 @@ inference_config = InferenceConfig(
     environment=environment,
 )
 
-model = Model(workspace, name=env_vars.model_name, version=args.model_version)
+model = Model(
+    workspace, name=env_vars.model_name, id=args.id, version=args.model_version
+)
 
+breakpoint()
 if not args.local:
-    deployment_config = AksWebservice.deploy_configuration(cpu_cores = 1, memory_gb = 1)
+    deployment_config = AksWebservice.deploy_configuration(cpu_cores=1, memory_gb=1)
     aks_target = get_aks_cluster(workspace, env_vars)
     print(aks_target)
-    kwargs = {'deployment_target': aks_target}
+    kwargs = {"deployment_target": aks_target}
 else:
     deployment_config = LocalWebservice.deploy_configuration(port=6789)
     kwargs = {}
@@ -40,7 +44,7 @@ service = Model.deploy(
     inference_config=inference_config,
     deployment_config=deployment_config,
     overwrite=True,
-    **kwargs
+    **kwargs,
 )
 service.wait_for_deployment(show_output=True)
 if args.url_output is not None:
