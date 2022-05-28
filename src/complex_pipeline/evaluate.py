@@ -49,6 +49,7 @@ except WebserviceException as e:
     logger.info("No model registered with this name")
     exit(0)
 
+
 production_value = model.tags.get(key_metric, None)
 new_value = run.parent.get_metrics().get(key_metric)
 
