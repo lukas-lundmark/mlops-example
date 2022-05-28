@@ -14,16 +14,20 @@ run_id = env_vars.run_id
 
 if arguments.run_id is not None:
     run_id = arguments.run_id
-if run_id is None:
-    raise ValueError("No value set for Run ID")
 
-print(run_id)
-models = Model.list(workspace, name=env_vars.model_name, tags=[['buildId', run_id]])
+tags = None
+if run_id is not None:
+    tags = tags=[['buildId', run_id]]
+
+models = Model.list(workspace, name=env_vars.model_name, tags=tags)
 n_models = len(models)
 
 if n_models == 0:
-    raise ValueError("No model registered for this run")
+    raise ValueError("No matching model found")
 elif n_models > 1:
-    raise ValueError(f"Too many models with this run {n_models}")
+    raise ValueError(f"Too many models: {n_models}, expected 1")
 
-Path(arguments.output).write_text(models[0].id)
+if arguments.output is not None:
+    Path(arguments.output).write_text(models[0].id)
+else:
+    print(models[0].id)
