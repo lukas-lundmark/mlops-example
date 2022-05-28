@@ -62,9 +62,9 @@ jobs:
       - name: Upload model as artifact
         if: ${{ steps.start-pipeline.outputs.status }} == 'Succeeded'
         uses: actions/upload-artifact@v3
-            with:
-              name: model
-              path: ./model.json
+        with:
+          name: model
+          path: ./model.json
 
       - name: Dispatch
         uses: peter-evans/repository-dispatch@v1
