@@ -82,8 +82,7 @@ jobs:
 
       - name: Build pipeline
         id: build-pipeline
-        if: |
-          ${{ steps.filter.outputs.workflows }} == 'true'
+        if: steps.filter.outputs.workflows == 'true'
         run: |
           OUTPUTFILE="output.txt"
           python -m ml_pipelines.complex_pipeline.build_pipeline --pipeline-id-output $OUTPUTFILE
@@ -91,8 +90,7 @@ jobs:
 
       - name: Run New Pipeline
         id: run-pipeline
-        if: |
-          ${{ steps.filter.outputs.workflows }} == 'true'
+        if: steps.filter.outputs.workflows == 'true'
         env:
           EXPERIMENT_NAME: CI-EXPERIMENT-NAME
         run: |
@@ -107,16 +105,16 @@ jobs:
 
       - name: Set Pipeline Endpoint
         if: |
-          ${{ steps.filter.outputs.workflows }} == 'true' &&
-          ${{ steps.run-pipeline.outputs.status }} == 'Finished'
+          steps.filter.outputs.workflows == 'true' &&
+          steps.run-pipeline.outputs.status == 'Finished'
         run: |
           PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID
 
       - name: Disable Failed Pipeline
         if: |
-          ${{ steps.filter.outputs.workflows }} == 'true' &&
-          ${{ steps.run-pipeline.outputs.status }} != 'Finished'
+          steps.filter.outputs.workflows == 'true' &&
+          steps.run-pipeline.outputs.status != 'Finished'
         run: |
           PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
           python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
