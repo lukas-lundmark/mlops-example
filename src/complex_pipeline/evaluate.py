@@ -3,6 +3,8 @@ from azureml.core import Model, Run
 import argparse
 import logging
 
+from azureml.exceptions import WebserviceException
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -41,7 +43,12 @@ allow_run_cancel = arguments.allow_run_cancel
 key_metric = arguments.key_metric
 lower_better = arguments.lower_better
 
-model = Model(workspace, name=model_name, version=None)
+try:
+    model = Model(workspace, name=model_name, version=None)
+except WebserviceException as e:
+    logger.info("No model registered with this name")
+    exit(0)
+
 production_value = model.tags.get(key_metric, None)
 new_value = run.parent.get_metrics().get(key_metric)
 
