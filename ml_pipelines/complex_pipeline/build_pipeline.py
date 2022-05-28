@@ -102,7 +102,7 @@ lower_better_pipeline_param = PipelineParameter(name="lower_better", default_val
 allow_eval_cancel_pipeline_param = PipelineParameter(
     name="allow_eval_cancel", default_value=True
 )
-build_id_param = PipelineParameter(name="build_id", default_value=None)
+build_id_param = PipelineParameter(name="build_id", default_value="")
 
 evaluate_step = PythonScriptStep(
     name="Evaulate model performance",
