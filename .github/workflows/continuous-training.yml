@@ -54,13 +54,13 @@ jobs:
           fi
 
       - name: Download Model Artifact from AML
-        if: ${{ steps.start-pipeline.outputs.status }} == 'Finished'
+        if: steps.start-pipeline.outputs.status == 'Finished'
         run : |
 
           python -m ml_pipelines.misc.download_model --output model.json
 
       - name: Upload model as artifact
-        if: ${{ steps.start-pipeline.outputs.status }} == 'Finished'
+        if: steps.start-pipeline.outputs.status == 'Finished'
         uses: actions/upload-artifact@v3
         with:
           name: model
@@ -68,7 +68,7 @@ jobs:
 
       - name: Dispatch
         uses: peter-evans/repository-dispatch@v1
-        if: ${{ steps.start-pipeline.outputs.status }} == 'Canceled'
+        if: steps.start-pipeline.outputs.status == 'Canceled'
         with:
           token: ${{ secrets.CR_PAT }}
           event-type: model-trained-event
