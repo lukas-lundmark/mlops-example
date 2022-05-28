@@ -55,10 +55,12 @@ jobs:
           fi
 
       - name: Download Model ID from AML
+        id: download-model
         if: steps.start-pipeline.outputs.status == 'Finished'
         run : |
 
           python -m ml_pipelines.misc.download_model --output model.json
+          echo ::set-output name=model::$(cat model.json)
 
       - name: Upload model id as artifact
         if: steps.start-pipeline.outputs.status == 'Finished'
@@ -73,4 +75,4 @@ jobs:
         with:
           token: ${{ secrets.CR_PAT }}
           event-type: model-trained-event
-          client-payload: '{"model": "${{ cat ./model.json}}"}'
+          client-payload: '{"model": "${{ steps.download-model.outputs.model }}"}'
