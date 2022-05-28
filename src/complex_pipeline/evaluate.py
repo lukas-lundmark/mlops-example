@@ -5,6 +5,7 @@ import logging
 
 from azureml.exceptions import WebserviceException
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 

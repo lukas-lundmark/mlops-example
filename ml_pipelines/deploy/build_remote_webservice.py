@@ -27,7 +27,6 @@ model = Model(
     workspace, name=env_vars.model_name, id=args.id, version=args.model_version
 )
 
-breakpoint()
 if not args.local:
     deployment_config = AksWebservice.deploy_configuration(cpu_cores=1, memory_gb=1)
     aks_target = get_aks_cluster(workspace, env_vars)
