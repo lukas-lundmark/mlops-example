@@ -7,6 +7,7 @@ on:
 env:
   RESOURCE_GROUP: mlops-rg
   WORKSPACE: azure-ml-toyota-demo
+  MODEL_NAME: temp-test-model
 
 jobs:
   check-if-rebuild-necessary:
