@@ -73,11 +73,6 @@ jobs:
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
           WORKSPACE: ${{ env.WORKSPACE }}
 
-      - uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: lukas-lundmark
-
       - name: "Deploy the production Web Service"
         id: "deploy-test-model"
         run: python -m ml_pipelines.deploy.build_remote_webservice --id ${{ env.MODEL_ID }}
