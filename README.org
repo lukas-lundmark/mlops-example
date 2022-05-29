@@ -1,1 +1,63 @@
-*
+* MLOps using Azure ML and GitHub actions
+This is an example repository of how Azure ML and GitHub actions can be integrated to build a simple MLOps platform with continuous training, continuous integration, and continuous deployment.
+
+
+*  Repository Overview
+
+** notebooks
+Contains notebooks used for exploratory data analysis.
+
+There are *two* notebooks: Exploratory Data Analaysis Local.ipynb and Exploratory Data Analaysis with Tracking.ipynb.
+
+Exploratory Data Analaysis Local.ipynb is an example notebook for a very basic data science experiment. If you are doing the MLOps Workshop or MLOps Masterclass. This is the notebook should start from.
+
+Exploratory Data Analaysis with Tracking.ipynb is an example of how the same experiment can be integrated with Azure ML to get experiment tracking, model registration and more. Use this as reference if you get stuck updating the original script.
+
+** environment_setup
+This folder contains defintion for building environments that can execute our notebooks, AML scripts and pipelines.
+
+The file ~environment_setup/ci_dependencies.yml~ defines a conda environment that can run all the pipelines and scripts in this repository. This conda environment is also used to define the AML environment we use for training and web service deployment.
+
+The file ~environment_setup/Dockerfile~ defines a Docker Image that builds the conda environment and downloads the Azure ML CLI extension. This Docker Image is used to run AML code in GitHub Actions.
+
+** src
+Contains various scripts for training, pipeline steps and webservice scoring.
+
+** ml_pipelines
+Contains the orchestration scripts for interacting with Azure ML, i.e., it contains most of the automation scripts.
+
+~scripts~ contains orchestration scripts for running a script both locally and on remote AML compute.
+
+~deploy~ contains script for deploying the webservice remote and locally. It also contains scripts for deleting a service, as well as testing the health of a running service.
+
+~simple_pipeline~ contains orcestration script for building and running the simple pipeline.
+
+~complex_pipeline~ contains orcestration script for building and running the complex pipeline, as well as disabling specific pipelines and definint a pipeline endpoint.
+
+~misc~ contains some small utility scripts, such as downloading the model id of a model trained in a certain Workflow run.
+
+The file ~utils.py~ contains a variety of functions for defining frequently used components for AML, such as environment, compute clusters, etc. It also contains a ~EnvironmentVariables~ class that loads environment variables. These environment variables can be set by defining an .env file in the root of the project.
+
+The ~send_request.py~ is a small utility script that can be used to send requests to a specified web-service.
+
+** The .github
+The .github folder defines the workflow and actions used by GitHub Actions. The workflows are mostly used to run the orchestration scripts in ml_pipelines.
+
+***  build-docker.yaml
+Builds the Docker Image used by most workflows and publishes the image to GitHub Container Registry.
+
+Triggered by changes to the environment_setup folder or manual triggers.
+
+*** continuous-training.yaml
+Re-runs the current default training pipeline. Can currently only be triggered manually, but should run on a schedule or be automatically triggered by changes to the dataset.
+
+*** build-eval-pipeline
+Publishes a new pipeline to Azure ML and evalutes its performance. Fails if the new model doesn't outperform the old one. If it improves the performance, the new model is set as the new default pipeline
+
+Triggered by changes to the ml_pipeline or src folder.
+
+*** deploy-model.yaml
+Deploys a given model as a webservice after performing a set of basic smoke tests.
+
+*** actions/aml_login/action.yaml
+aml_login is a custom action that performs logins in the Azure CLI and also creates the AML config object. Mostly there for convenience.

@@ -51,7 +51,7 @@ jobs:
         run: python -m ml_pipelines.deploy.delete_service
 
   deploy-model:
-    name: run_train_endpoint
+    name: Create or Update Deployment
     runs-on: ubuntu-latest
     needs: test-deploy-model
 
