@@ -91,4 +91,4 @@ jobs:
         with:
           token: ${{ secrets.CR_PAT }}
           event-type: model-trained-event
-          client-payload: ${{ cat ./build-output.json }}
+          client-payload: $(cat ./build-output.json)
