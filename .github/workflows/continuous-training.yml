@@ -41,33 +41,20 @@ jobs:
               --ignore-data-check
           echo ::set-output name=status::$(cat $OUTPUTFILE)
 
-      - name: Check status of Pipeline Run
-        id: check-pipeline
-        run: |
-          status=${{ steps.start-pipeline.outputs.status }}
-          echo $status
-          if [ "$status" = "Canceled" ]; then
-              echo "Pipeline was canceled"
-          elif [ "$status" = "Failed" ]; then
-              echo "Pipeline failed"
-          else
-              echo "Pipeline succeeded"
-          fi
-
       - name: Download Model ID from AML
         id: download-model
         if: steps.start-pipeline.outputs.status == 'Finished'
         run : |
 
-          python -m ml_pipelines.misc.download_model --output model.json
-          echo ::set-output name=model::$(cat model.json)
+          python -m ml_pipelines.misc.download_model --output model.txt
+          echo ::set-output name=model::$(cat model.txt)
 
       - name: Upload model id as artifact
         if: steps.start-pipeline.outputs.status == 'Finished'
         uses: actions/upload-artifact@v3
         with:
           name: model
-          path: ./model.json
+          path: ./model.txt
 
       - name: Dispatch
         uses: peter-evans/repository-dispatch@v1

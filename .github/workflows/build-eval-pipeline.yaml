@@ -1,0 +1,99 @@
+name: Automatic Training
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check-if-rebuild-necessary:
+    name: Check if rebuild is necessary
+    runs-on: ubuntu-latest
+    outputs:
+       run_filter: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'ml_pipelines/**'
+              - 'src/**'
+
+  run-train-pipeline:
+    needs: check-if-rebuild-necessary
+    if: needs.check-if-rebuild-necessary.outputs.run_filter == 'true'
+    name: Run Train Pipeline
+    runs-on: ubuntu-latest
+    env:
+      MODEL_NAME: just-a-test-model
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: Build pipeline
+        id: build-pipeline
+        if: steps.filter.outputs.workflows == 'true'
+        run: |
+          OUTPUTFILE="output.txt"
+          python -m ml_pipelines.complex_pipeline.build_pipeline --pipeline-id-output $OUTPUTFILE
+          echo ::set-output name=newpipelineid::$(cat $OUTPUTFILE)
+
+      - name: Run New Pipeline
+        id: run-pipeline
+        if: steps.filter.outputs.workflows == 'true'
+        env:
+          EXPERIMENT_NAME: CI-EXPERIMENT-NAME
+        run: |
+          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
+          STATUS_OUTPUT="output.txt"
+
+          python -m ml_pipelines.complex_pipeline.run_pipeline \
+            --pipeline-id $PIPELINEID \
+            --status-output $STATUS_OUTPUT \
+            --ignore-data-check
+          echo ::set-output name=status::$(cat $STATUS_OUTPUT)
+
+      - name: Disable Failed Pipeline
+        if: |
+          steps.run-pipeline.outputs.status != 'Finished'
+        run: |
+          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
+          python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
+          echo "The new pipeline didn't improve results so we fail"
+          exit 1
+
+      - name: Download Model ID from AML
+        id: download-model
+        run : |
+          python -m ml_pipelines.misc.download_model --output model.txt
+          echo ::set-output name=model::$(cat model.txt)
+
+      - name: Write pipeline and model id to
+        id: prepare-output
+        run : |
+          echo "{\"model\": \"${{ steps.download-model.outputs.model }}\", \"pipeline\": \"${{ steps.download-model.outputs.model }}\"}" > build-output.json
+
+      - name: Upload model id as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: ./build-output.json

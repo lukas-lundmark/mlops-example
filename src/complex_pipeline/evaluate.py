@@ -51,7 +51,9 @@ except WebserviceException as e:
     exit(0)
 
 
+# Get metric from the current production model
 production_value = model.tags.get(key_metric, None)
+# Get the metrics from the parent step
 new_value = run.parent.get_metrics().get(key_metric)
 
 if production_value is None or new_value is None:
@@ -61,21 +63,21 @@ if production_value is None or new_value is None:
 
 if lower_better and float(production_value) > new_value:
     logger.info(
-        "New model has lower %s and therefore better %d < %d",
+        "New model has lower %s and therefore better %d < %s",
         key_metric,
         new_value,
         production_value,
     )
 elif not lower_better and float(production_value) < new_value:
     logger.info(
-        "New model has higher %s and therefore better %d > %d",
+        "New model has higher %s and therefore better %d > %s",
         key_metric,
         new_value,
         production_value,
     )
 else:
     logger.info(
-        "New model did not improve result for metric $s: %d (new) vs. %ds (old)",
+        "New model did not improve result for metric $s: %d (new) vs. %s (old)",
         key_metric,
         new_value,
         production_value,

@@ -2,6 +2,7 @@ name: Automatic Training
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 env:
@@ -46,77 +47,3 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-
-  run-train-pipeline:
-    name: Run Train Pipeline
-    runs-on: ubuntu-latest
-    env:
-      MODEL_NAME: just-a-test-model
-
-    container:
-      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.CR_PAT }}
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: AML Login
-        uses: ./.github/actions/aml_login
-        with:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
-          WORKSPACE: ${{ env.WORKSPACE }}
-
-      - name: filter
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            workflows:
-              - 'ml_pipelines/**'
-              - 'src/**'
-
-      - name: Build pipeline
-        id: build-pipeline
-        if: steps.filter.outputs.workflows == 'true'
-        run: |
-          OUTPUTFILE="output.txt"
-          python -m ml_pipelines.complex_pipeline.build_pipeline --pipeline-id-output $OUTPUTFILE
-          echo ::set-output name=newpipelineid::$(cat $OUTPUTFILE)
-
-      - name: Run New Pipeline
-        id: run-pipeline
-        if: steps.filter.outputs.workflows == 'true'
-        env:
-          EXPERIMENT_NAME: CI-EXPERIMENT-NAME
-        run: |
-          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
-          STATUS_OUTPUT="output.txt"
-
-          python -m ml_pipelines.complex_pipeline.run_pipeline \
-            --pipeline-id $PIPELINEID \
-            --status-output $STATUS_OUTPUT \
-            --ignore-data-check
-          echo ::set-output name=status::$(cat $STATUS_OUTPUT)
-
-      - name: Set Pipeline Endpoint
-        if: |
-          steps.filter.outputs.workflows == 'true' &&
-          steps.run-pipeline.outputs.status == 'Finished'
-        run: |
-          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
-          python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID
-
-      - name: Disable Failed Pipeline
-        if: |
-          steps.filter.outputs.workflows == 'true' &&
-          steps.run-pipeline.outputs.status != 'Finished'
-        run: |
-          PIPELINEID="${{ steps.build-pipeline.outputs.newpipelineid }}"
-          python -m ml_pipelines.complex_pipeline.disable_pipeline --pipeline-id $PIPELINEID
-          echo "The new pipeline didn't improve results so we fail"
-          exit 1
