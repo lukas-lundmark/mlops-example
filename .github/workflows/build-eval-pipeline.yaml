@@ -2,7 +2,14 @@ name: Continuous Integration Pipeline Rebuild
 on:
   push:
     branches: [main]
+    paths:
+      - 'ml_pipelines/**'
+      - 'src/**'
   pull_request:
+    paths:
+      - 'ml_pipelines/**'
+      - 'src/**'
+  workflow_dispatch:
 
 env:
   RESOURCE_GROUP: mlops-rg
@@ -10,27 +17,7 @@ env:
   MODEL_NAME: temp-test-model
 
 jobs:
-  check-if-rebuild-necessary:
-    name: Check if rebuild is necessary
-    runs-on: ubuntu-latest
-    outputs:
-       run_filter: ${{ steps.filter.outputs.workflows }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: filter
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            workflows:
-              - 'ml_pipelines/**'
-              - 'src/**'
-
   run-train-pipeline:
-    needs: check-if-rebuild-necessary
-    if: needs.check-if-rebuild-necessary.outputs.run_filter == 'true'
     name: Run Train Pipeline
     runs-on: ubuntu-latest
     env:
