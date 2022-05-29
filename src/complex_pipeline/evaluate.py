@@ -53,6 +53,7 @@ except WebserviceException as e:
 
 # Get metric from the current production model
 production_value = model.tags.get(key_metric, None)
+
 # Get the metrics from the parent step
 new_value = run.parent.get_metrics().get(key_metric)
 

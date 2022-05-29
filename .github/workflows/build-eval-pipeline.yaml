@@ -4,6 +4,10 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  RESOURCE_GROUP: mlops-rg
+  WORKSPACE: azure-ml-toyota-demo
+
 jobs:
   check-if-rebuild-necessary:
     name: Check if rebuild is necessary
