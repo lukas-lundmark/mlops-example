@@ -38,4 +38,4 @@ jobs:
 
       - name: Set Pipeline Endpoint
         run: |
-          python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID
+          python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINE_ID
