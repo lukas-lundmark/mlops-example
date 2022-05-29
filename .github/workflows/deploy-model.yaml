@@ -45,7 +45,6 @@ jobs:
         run: python -m ml_pipelines.deploy.build_remote_webservice --id ${{ env.MODEL_ID }}
 
       - name: "Smoke Test Webservice"
-        continue-on-error: true
         run: python -m ml_pipelines.deploy.smoke_test
 
       - name: "Destroy Test Model"
