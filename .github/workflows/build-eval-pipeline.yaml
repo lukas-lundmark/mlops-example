@@ -1,4 +1,4 @@
-name: Automatic Training
+name: Continuous Integration Pipeline Rebuild
 on:
   push:
     branches: [main]
@@ -55,7 +55,6 @@ jobs:
 
       - name: Build pipeline
         id: build-pipeline
-        if: steps.filter.outputs.workflows == 'true'
         run: |
           OUTPUTFILE="output.txt"
           python -m ml_pipelines.complex_pipeline.build_pipeline --pipeline-id-output $OUTPUTFILE
@@ -63,7 +62,6 @@ jobs:
 
       - name: Run New Pipeline
         id: run-pipeline
-        if: steps.filter.outputs.workflows == 'true'
         env:
           EXPERIMENT_NAME: CI-EXPERIMENT-NAME
         run: |
