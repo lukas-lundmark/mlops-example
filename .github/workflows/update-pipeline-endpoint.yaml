@@ -1,0 +1,41 @@
+name: Update pipeline endpoint
+
+on:
+  repository_dispatch:
+    types: [new-pipeline-event]
+  workflow_dispatch:
+    inputs:
+      pipeline:
+        required: true
+        type: string
+
+env:
+  RESOURCE_GROUP: mlops-rg
+  WORKSPACE: azure-ml-toyota-demo
+  PIPELINE_ID: ${{ github.event.client_payload.pipeline || github.event.inputs.pipeline }}
+
+jobs:
+  update-pipeline-endpoint:
+    name: update-pipeline-endpoint
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: AML Login
+        uses: ./.github/actions/aml_login
+        with:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+
+      - name: Set Pipeline Endpoint
+        run: |
+          python -m ml_pipelines.complex_pipeline.set_pipeline_endpoint --pipeline-id $PIPELINEID

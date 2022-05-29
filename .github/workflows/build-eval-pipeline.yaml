@@ -94,3 +94,10 @@ jobs:
           token: ${{ secrets.CR_PAT }}
           event-type: model-trained-event
           client-payload: ${{ steps.prepare-output.outputs.object }}
+
+      - name: Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CR_PAT }}
+          event-type: new-pipeline-event
+          client-payload: ${{ steps.prepare-output.outputs.object }}
