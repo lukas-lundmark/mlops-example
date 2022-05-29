@@ -5,11 +5,15 @@ on:
   repository_dispatch:
     types: [model-trained-event]
   workflow_dispatch:
+    inputs:
+      model:
+        required: true
+        type: string
 
 env:
   RESOURCE_GROUP: mlops-rg
   WORKSPACE: azure-ml-toyota-demo
-  MODEL_ID: ${{ github.event.client_payload.model }}
+  MODEL_ID: ${{ github.event.client_payload.model || github.event.inputs.model }}
 
 jobs:
 
@@ -19,7 +23,6 @@ jobs:
     env:
       INFERENCE_CLUSTER_NAME: "test-cluster"
       SERVICE_NAME: "test-service"
-      MODEL_ID: ${{ github.event.client_payload.model }}
 
     container:
       image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
