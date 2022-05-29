@@ -78,10 +78,17 @@ jobs:
       - name: Write pipeline and model id to
         id: prepare-output
         run : |
-          echo "{\"model\": \"${{ steps.download-model.outputs.model }}\", \"pipeline\": \"${{ steps.download-model.outputs.model }}\"}" > build-output.json
+          echo "{\"model\": \"${{ steps.download-model.outputs.model }}\", \"pipeline\": \"${{ steps.build-pipeline.outputs.newpipelineid }}\"}" > build-output.json
 
       - name: Upload model id as artifact
         uses: actions/upload-artifact@v3
         with:
           name: build-output
           path: ./build-output.json
+
+      - name: Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CR_PAT }}
+          event-type: model-trained-event
+          client-payload: ${{ cat ./build-output.json }}
