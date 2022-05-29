@@ -20,8 +20,6 @@ jobs:
   run-train-pipeline:
     name: Run Train Pipeline
     runs-on: ubuntu-latest
-    env:
-      MODEL_NAME: just-a-test-model
 
     container:
       image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
