@@ -6,7 +6,9 @@ import argparse
 workspace = Workspace.from_config()
 parser = argparse.ArgumentParser()
 parser.add_argument("--run-id", help="The run id that created the model")
-parser.add_argument("--output", required=True, help="Write model information to this file")
+parser.add_argument(
+    "--output", required=True, help="Write model information to this file"
+)
 arguments = parser.parse_args()
 
 env_vars = EnvironmentVariables()
@@ -17,7 +19,7 @@ if arguments.run_id is not None:
 
 tags = None
 if run_id is not None:
-    tags = tags=[['buildId', run_id]]
+    tags = tags = [["buildId", run_id]]
 
 models = Model.list(workspace, name=env_vars.model_name, tags=tags)
 n_models = len(models)

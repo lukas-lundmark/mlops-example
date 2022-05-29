@@ -6,25 +6,8 @@ import pandas as pd
 import json
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--source-file", help="example csv to read records from")
-    parser.add_argument("--n", type=int, default=10, help="Send this many examples from the csv")
-    parser.add_argument(
-        "--url",
-        help="Remote URL for the service, usually something like http:<something>/score",
-    )
-    parser.add_argument(
-        "--key", help="Set the key if you enabled key-based authentication"
-    )
-    parser.add_argument(
-        "--output", help="Write response to a file"
-    )
-    arguments = parser.parse_args()
-
-    n = arguments.n
-    url = arguments.url
-    source_file = Path(arguments.source_file)
+def send_request(source_file, n, url, key=None):
+    source_file = Path(source_file)
     assert source_file.exists()
 
     df = pd.read_csv(source_file)
@@ -32,11 +15,35 @@ def main():
     print(f"Sending these records: {records} to {url}")
 
     headers = {"Content-Type": "application/json"}
-    if arguments.key is not None:
+    if key is not None:
         print("Using key authentication")
-        headers["Authorization"] = f"Bearer {arguments.key}"
+        headers["Authorization"] = f"Bearer {key}"
 
     response = requests.post(url=url, data=json.dumps(records), headers=headers)
+    return response
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-file", help="example csv to read records from")
+    parser.add_argument(
+        "--n", type=int, default=10, help="Send this many examples from the csv"
+    )
+    parser.add_argument(
+        "--url",
+        help="Remote URL for the service, usually something like http:<something>/score",
+    )
+    parser.add_argument(
+        "--key", help="Set the key if you enabled key-based authentication"
+    )
+    parser.add_argument("--output", help="Write response to a file")
+    arguments = parser.parse_args()
+    response = send_request(
+        source_file=arguments.source_file,
+        n=arguments.n,
+        url=arguments.url,
+        key=arguments.key,
+    )
     if response.status_code == 200:
         print("Received response successfully")
         response_json = response.json()

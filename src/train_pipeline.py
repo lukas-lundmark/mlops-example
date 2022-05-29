@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--model-name", help="Name of model register")
     arguments = parser.parse_args()
     ds_train = arguments.ds_train
-    ds_test  = arguments.ds_test
+    ds_test = arguments.ds_test
     model_name = arguments.model_name
 
     assert ds_test in ws.datasets and ds_train in ws.datasets

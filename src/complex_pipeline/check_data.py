@@ -10,20 +10,21 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def true_or_false(arg):
     upper = str(arg).upper()
-    if 'TRUE'.startswith(upper):
-       return True
-    elif 'FALSE'.startswith(upper):
-       return False
+    if "TRUE".startswith(upper):
+        return True
+    elif "FALSE".startswith(upper):
+        return False
     else:
-       raise ValueError  #error condition maybe?
+        raise ValueError  # error condition maybe?
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ds-name", help='Name of training dataset', required=True)
-parser.add_argument("--model-name", help='Name of model', required=True)
-parser.add_argument("--ignore", type=str, default="False", help='')
+parser.add_argument("--ds-name", help="Name of training dataset", required=True)
+parser.add_argument("--model-name", help="Name of model", required=True)
+parser.add_argument("--ignore", type=str, default="False", help="")
 
 arguments = parser.parse_args()
 ignore = true_or_false(arguments.ignore)

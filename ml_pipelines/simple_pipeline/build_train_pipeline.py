@@ -46,7 +46,7 @@ train_step = PythonScriptStep(
         "--ds-test",
         test_dataset_name,
         "--model-name",
-        model_name
+        model_name,
     ],
 )
 

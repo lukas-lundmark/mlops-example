@@ -31,17 +31,11 @@ class EnvironmentVariables:
         "ENVIRONMENT_FILE", "environment_setup/ci_dependencies.yml"
     )
 
-    scoring_dir: Optional[str] = os.environ.get(
-        "SCORING_DIR", "src"
-    )
+    scoring_dir: Optional[str] = os.environ.get("SCORING_DIR", "src")
 
-    scoring_file: Optional[str] = os.environ.get(
-        "SCORING_FILE", "deployment/score.py"
-    )
+    scoring_file: Optional[str] = os.environ.get("SCORING_FILE", "deployment/score.py")
 
-    service_name: Optional[str] = os.environ.get(
-        "SERVICE_NAME", "test-regressor"
-    )
+    service_name: Optional[str] = os.environ.get("SERVICE_NAME", "test-regressor")
 
     experiment_name: Optional[str] = os.environ.get(
         "EXPERIMENT_NAME", "train-diamond-experiment"
@@ -55,17 +49,16 @@ class EnvironmentVariables:
         "PIPELINE_ENDPOINT_NAME", "train-pipeline-endpoint"
     )
 
-    train_ds: Optional[str] = os.environ.get(
-        "TRAIN_DS", "diamonds-train"
-    )
-    test_ds: Optional[str] = os.environ.get(
-        "TEST_DS", "diamonds-test"
-    )
+    train_ds: Optional[str] = os.environ.get("TRAIN_DS", "diamonds-train")
+    test_ds: Optional[str] = os.environ.get("TEST_DS", "diamonds-test")
 
     model_name: Optional[str] = os.environ.get("MODEL_NAME", "diamond-linear-regressor")
-    inference_cluster_name: Optional[str] = os.environ.get("INFERENCE_CLUSTER_NAME", "aks-cluster")
+    inference_cluster_name: Optional[str] = os.environ.get(
+        "INFERENCE_CLUSTER_NAME", "aks-cluster"
+    )
 
     run_id: Optional[str] = os.environ.get("GITHUB_RUN_ID", None)
+
 
 def get_aml_compute(ws: Workspace, env_vars: EnvironmentVariables) -> ComputeTarget:
     try:
@@ -82,6 +75,7 @@ def get_aml_compute(ws: Workspace, env_vars: EnvironmentVariables) -> ComputeTar
     cpu_cluster.wait_for_completion(show_output=True)
     return cpu_cluster
 
+
 def get_environment(ws: Workspace, env_vars: EnvironmentVariables):
     environment_name = env_vars.environment_name
     assert environment_name is not None
@@ -94,6 +88,7 @@ def get_environment(ws: Workspace, env_vars: EnvironmentVariables):
         )
     return env
 
+
 def get_aks_cluster(ws: Workspace, env_vars: EnvironmentVariables) -> AksCompute:
     try:
         aks_target = AksCompute(ws, name=env_vars.inference_cluster_name)
@@ -101,17 +96,18 @@ def get_aks_cluster(ws: Workspace, env_vars: EnvironmentVariables) -> AksCompute
     except ComputeTargetException:
         print("Creating AKS Target")
         provisioning_config = AksCompute.provisioning_configuration(
-            vm_size='Standard_D2as_v4',
-            agent_count = 1,
-            cluster_purpose = AksCompute.ClusterPurpose.DEV_TEST
+            vm_size="Standard_D2as_v4",
+            agent_count=1,
+            cluster_purpose=AksCompute.ClusterPurpose.DEV_TEST,
         )
         aks_target = ComputeTarget.create(
-            workspace = ws,
-            name = env_vars.inference_cluster_name,
-            provisioning_configuration = provisioning_config
+            workspace=ws,
+            name=env_vars.inference_cluster_name,
+            provisioning_configuration=provisioning_config,
         )
-        aks_target.wait_for_completion(show_output = True)
+        aks_target.wait_for_completion(show_output=True)
     return aks_target
+
 
 def get_experiment(ws: Workspace, env_vars: EnvironmentVariables) -> Experiment:
     return Experiment(ws, name=env_vars.experiment_name)

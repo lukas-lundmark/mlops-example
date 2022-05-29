@@ -5,10 +5,12 @@ import pandas as pd
 FLOAT_COLS = ("carat", "depth", "table", "price", "x", "y", "z")
 CAT_COLS = ("cut", "color", "clarity")
 
+
 def to_dataframe(records):
     df = pd.DataFrame(records)
     assert all(col in df.columns for col in (list(FLOAT_COLS) + list(CAT_COLS)))
     return df
+
 
 def convert_dtypes(df):
     """Make sure that the input columns has the correct dtypes"""

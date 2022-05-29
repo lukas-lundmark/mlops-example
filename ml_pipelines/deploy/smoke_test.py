@@ -18,6 +18,7 @@ def send_request(records, uri, key):
     assert response.status_code == 200
     return response.json()
 
+
 # Connect to the workspace
 workspace = Workspace.from_config()
 env_vars = EnvironmentVariables()
@@ -34,12 +35,12 @@ total_size = 500
 step_size = 10
 return_records = []
 for i in tqdm(range(0, total_size, step_size), total=total_size // step_size):
-    records = dataset.iloc[i:i+step_size].to_dict(orient='records')
+    records = dataset.iloc[i : i + step_size].to_dict(orient="records")
     response = send_request(records, uri, key=key)
     return_records.extend(json.loads(response))
 
 # Make sure that the service performs well enough
 return_df = pd.DataFrame(return_records)
-r2 = r2_score(return_df['predicted_price'], dataset['price'].iloc[:total_size])
+r2 = r2_score(return_df["predicted_price"], dataset["price"].iloc[:total_size])
 print("R2 score", r2)
 assert r2 > 0.9

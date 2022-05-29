@@ -16,6 +16,6 @@ except Exception as e:
     )
     environment.register(ws)
 
-src = ScriptRunConfig('src', script='train.py', environment=environment)
+src = ScriptRunConfig("src", script="train.py", environment=environment)
 run = experiment.submit(src)
 run.wait_for_completion(show_output=True)

@@ -9,8 +9,8 @@ import numpy as np
 import joblib
 from pathlib import Path
 
-dataset_name = 'diamonds'
-model_name="diamond-linear-regressor-new-debug"
+dataset_name = "diamonds"
+model_name = "diamond-linear-regressor-new-debug"
 
 run = Run.get_context()
 ws = run.experiment.workspace
@@ -21,10 +21,12 @@ df_train = train_dataset.to_pandas_dataframe()
 test_dataset = Dataset.get_by_name(ws, name=f"{dataset_name}-test")
 df_test = test_dataset.to_pandas_dataframe()
 
+
 def prepare_data(df):
     df = df.copy()
-    y = df.pop('price')
+    y = df.pop("price")
     return df, y
+
 
 regressor = LinearRegression()
 ct = make_column_transformer(
@@ -54,7 +56,7 @@ joblib.dump(model, filename=str(path))
 run.upload_file(str(path.name), path_or_stream=str(path))
 
 all_models = Model.list(ws, name=model_name)
-if all(r2 >  float(model.tags.get("r2", -np.inf)) for model in all_models):
+if all(r2 > float(model.tags.get("r2", -np.inf)) for model in all_models):
     print("Found a new winner. Registering the model.")
     run.register_model(
         model_name=model_name,
@@ -62,5 +64,5 @@ if all(r2 >  float(model.tags.get("r2", -np.inf)) for model in all_models):
         description="Linear Diamond Regression Model",
         model_framework="ScikitLearn",
         datasets=[("training dataset", train_dataset), ("test dataset", test_dataset)],
-        tags={"rmse": rmse, "r2": r2}
+        tags={"rmse": rmse, "r2": r2},
     )

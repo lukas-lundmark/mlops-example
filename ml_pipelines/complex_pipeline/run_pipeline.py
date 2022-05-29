@@ -20,7 +20,9 @@ parser.add_argument(
     help="Run the given pipeline regardless if new data is available or not",
 )
 
-parser.add_argument("--status-output", default=None, help="Write the final Run Status to this file.")
+parser.add_argument(
+    "--status-output", default=None, help="Write the final Run Status to this file."
+)
 
 arguments = parser.parse_args()
 

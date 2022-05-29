@@ -12,7 +12,9 @@ parser.add_argument(
 )
 
 parser.add_argument("--step-input", type=str, help="input from previous steps")
-parser.add_argument("--build-id", type=str, help="The run id of the current GitHub workflow")
+parser.add_argument(
+    "--build-id", type=str, help="The run id of the current GitHub workflow"
+)
 arguments = parser.parse_args()
 model_path = arguments.step_input
 model_name = arguments.model_name
