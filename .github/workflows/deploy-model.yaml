@@ -56,9 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-deploy-model
 
-    env:
-      MODEL_ID: ${{ github.event.client_payload.model }}
-
     container:
       image: ghcr.io/lukas-lundmark/mlops-ci-image:latest
       credentials:
