@@ -1,5 +1,4 @@
 import json
-from tqdm import tqdm
 from azureml.pipeline import steps
 import requests
 from azureml.core.webservice import Webservice
@@ -34,7 +33,7 @@ uri = webservice.scoring_uri
 total_size = 500
 step_size = 10
 return_records = []
-for i in tqdm(range(0, total_size, step_size), total=total_size // step_size):
+for i in range(0, total_size, step_size):
     records = dataset.iloc[i : i + step_size].to_dict(orient="records")
     response = send_request(records, uri, key=key)
     return_records.extend(json.loads(response))
